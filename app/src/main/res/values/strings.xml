@@ -4,6 +4,7 @@
     <string name="notes_title">Notes Title</string>
     <string name="notes_sub_title">Notes Sub Title</string>
     <string name="notes_desc">Enter Note Here</string>
+    <string name="storage_permission">This app needs access to your storage.</string>
     <string name="search">Search your notes</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

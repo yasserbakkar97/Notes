@@ -67,7 +67,7 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    fun replaceFragment(fragment: Fragment , istransition: Boolean){
+    private fun replaceFragment(fragment: Fragment, istransition: Boolean){
         val fragmentTransition = requireActivity().supportFragmentManager.beginTransaction()
 
         if (istransition){
