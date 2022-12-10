@@ -29,11 +29,19 @@ class NotesAdapter(val arrayList: List<Notes>) :
         }else{
             holder.itemView.cardView.setCardBackgroundColor(Color.parseColor("#171C26"))
         }
+
         if(arrayList[position].imgPath != null){
             holder.itemView.imgNote.setImageBitmap(BitmapFactory.decodeFile(arrayList[position].imgPath))
             holder.itemView.imgNote.visibility = View.VISIBLE
         }else{
             holder.itemView.imgNote.visibility = View.GONE
+        }
+
+        if(arrayList[position].webLink != null){
+            holder.itemView.tvWebLink.text = arrayList[position].webLink
+            holder.itemView.tvWebLink.visibility = View.VISIBLE
+        }else{
+            holder.itemView.tvWebLink.visibility = View.GONE
         }
     }
 

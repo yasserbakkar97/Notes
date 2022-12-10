@@ -9,8 +9,10 @@ import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
+import android.opengl.Visibility
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Patterns
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +31,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.jar.Manifest
+import java.util.regex.Pattern
 
 
 class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks , EasyPermissions.RationaleCallbacks  {
@@ -38,11 +41,7 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
     private var READ_STORAGE_PERMISSION = 123
     private var REQUEST_CODE_IMAGE = 456
     private var selectedImagePath = ""
-
-
-    private var _binding: FragmentCreateNoteBinding? = null
-    // This property is only valid between onCreateView and onDestroyView.
-    private val binding get() = _binding!!
+    private var webLink = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,10 +55,8 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        _binding = FragmentCreateNoteBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+
+        return inflater.inflate(R.layout.fragment_create_note, container, false)
     }
 
     companion object {
@@ -84,61 +81,85 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
         colorView.setBackgroundColor(Color.parseColor(selectedColor))
 
 
-        binding.tvDataTime.text = currentData
+        tvDataTime.text = currentData
 
-        binding.imgDone.setOnClickListener {
+        imgDone.setOnClickListener {
             saveNote()
         }
 
-        binding.imgBack.setOnClickListener {
+        imgBack.setOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
         }
-        binding.imgMore.setOnClickListener {
+        imgMore.setOnClickListener {
             var noteBottomSheetFragment = NoteBottomSheetFragment.newInstance()
             noteBottomSheetFragment.show(requireActivity().supportFragmentManager,  "Note Bottom Sheet Fragment")
         }
+        btnOk.setOnClickListener {
+            if(etWebLink.text.toString().trim().isNotEmpty()){
+                checkWebUrl()
+            }else{
+                Toast.makeText(requireContext(), "Url is Required", Toast.LENGTH_SHORT).show()
+            }
+        }
+        btnCancel.setOnClickListener {
+            layoutWebUrl.visibility = View.GONE
+        }
+        tvWebLink.setOnClickListener {
+            var intent = Intent(Intent.ACTION_VIEW , Uri.parse(etWebLink.text.toString()))
+            startActivity(intent)
+        }
+
+
     }
     private fun saveNote(){
 
-        if(binding.etNoteTitle.text.isNullOrEmpty()){
+        if(etNoteTitle.text.isNullOrEmpty()){
             Toast.makeText(context, "Note Title is Required" , Toast.LENGTH_SHORT).show()
         }
 
-        if(binding.etNoteSubTitle.text.isNullOrEmpty()){
+        else if(etNoteSubTitle.text.isNullOrEmpty()){
             Toast.makeText(context, "Note Sub Title is Required" , Toast.LENGTH_SHORT).show()
         }
 
-        if(binding.etNoteDesc.text.isNullOrEmpty()){
+        else if(etNoteDesc.text.isNullOrEmpty()){
             Toast.makeText(context, "Note description is Required" , Toast.LENGTH_SHORT).show()
         }
+        else{
 
         launch {
             var notes = Notes()
-            notes.title = binding.etNoteTitle.text.toString()
-            notes.subTitle = binding.etNoteSubTitle.text.toString()
-            notes.noteText = binding.etNoteDesc.text.toString()
+            notes.title = etNoteTitle.text.toString()
+            notes.subTitle = etNoteSubTitle.text.toString()
+            notes.noteText = etNoteDesc.text.toString()
             notes.dataTime = currentData
             notes.color = selectedColor
             notes.imgPath = selectedImagePath
+            notes.webLink = webLink
 
             context?.let {
                 NotesDatabase.getDatabase(it).noteDao().insertNote(notes)
-                binding.etNoteTitle.setText("")
-                binding.etNoteSubTitle.setText("")
-                binding.etNoteDesc.setText("")
+                etNoteTitle.setText("")
+                etNoteSubTitle.setText("")
+                etNoteDesc.setText("")
                 imgNote.visibility = View.GONE
+                tvWebLink.visibility = View.GONE
                 requireActivity().supportFragmentManager.popBackStack()
             }
         }
+        }
     }
 
-    fun replaceFragment(fragment: Fragment , istransition: Boolean){
-        val fragmentTransition = requireActivity().supportFragmentManager.beginTransaction()
+    private fun checkWebUrl(){
+        if(Patterns.WEB_URL.matcher(etWebLink.text.toString()).matches()){
+            layoutWebUrl.visibility = View.GONE
+            etWebLink.isEnabled = false
+            webLink = etWebLink.text.toString()
+            tvWebLink.visibility = View.VISIBLE
+            tvWebLink.text = etWebLink.text.toString()
+        }else{
+            Toast.makeText(requireContext(), "Url is not valid", Toast.LENGTH_SHORT).show()
 
-        if (istransition){
-            fragmentTransition.setCustomAnimations(android.R.anim.slide_out_right , android.R.anim.slide_in_left)
         }
-        fragmentTransition.replace(R.id.frame_layout , fragment).addToBackStack(fragment.javaClass.simpleName).commit()
     }
 
     private val broadcastReceiver : BroadcastReceiver = object : BroadcastReceiver(){
@@ -173,8 +194,14 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
                 }
                 "Image" -> {
                     readStorageTask()
+                    layoutWebUrl.visibility = View.GONE
+                }
+                "WebUrl" -> {
+                    layoutWebUrl.visibility = View.VISIBLE
                 }
                 else -> {
+                    imgNote.visibility = View.GONE
+                    layoutWebUrl.visibility = View.GONE
                     selectedColor = p1.getStringExtra("selectedColor")!!
                     colorView.setBackgroundColor(Color.parseColor(selectedColor))
                 }
