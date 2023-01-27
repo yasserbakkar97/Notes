@@ -26,7 +26,9 @@ import com.example.notes.util.NoteBottomSheetFragment
 import com.vmadalin.easypermissions.EasyPermissions
 import com.vmadalin.easypermissions.dialogs.SettingsDialog
 import kotlinx.android.synthetic.main.fragment_create_note.*
+import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_notes_bottom_sheet.*
+import kotlinx.android.synthetic.main.item_rv_notes.view.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -42,13 +44,13 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
     private var REQUEST_CODE_IMAGE = 456
     private var selectedImagePath = ""
     private var webLink = ""
+    private var noteId = -1
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
 
-        }
+        noteId = requireArguments().getInt("noteId", -1)
     }
 
     override fun onCreateView(
@@ -72,6 +74,34 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+        if(noteId != -1){
+
+            launch {
+                context?.let {
+                    var notes = NotesDatabase.getDatabase(it).noteDao().getSpecificNote(noteId)
+                    colorView.setBackgroundColor(Color.parseColor(selectedColor))
+
+                    etNoteTitle.setText(notes.title)
+                    etNoteSubTitle.setText(notes.subTitle)
+                    etNoteDesc.setText(notes.noteText)
+                    if(notes.imgPath != ""){
+                        imgNote.setImageBitmap(BitmapFactory.decodeFile(notes.imgPath))
+                        imgNote.visibility = View.VISIBLE
+                    }else{
+                        imgNote.visibility = View.GONE
+                    }
+
+                    if(notes.webLink != ""){
+                        tvWebLink.text = notes.webLink
+                        tvWebLink.visibility = View.VISIBLE
+                    }else{
+                        tvWebLink.visibility = View.GONE
+                    }
+                }
+            }
+
+        }
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
             broadcastReceiver, IntentFilter("bottom_sheet_action")
         )

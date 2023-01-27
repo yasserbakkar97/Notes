@@ -19,6 +19,7 @@ class HomeFragment : BaseFragment() {
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
+    var notesAdapter : NotesAdapter = NotesAdapter()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -57,14 +58,31 @@ class HomeFragment : BaseFragment() {
         launch {
             context?.let {
                 var notes = NotesDatabase.getDatabase(it).noteDao().getAllNotes()
-                recycler_view.adapter = NotesAdapter(notes)
+                notesAdapter!!.setData(notes)
+                recycler_view.adapter = notesAdapter
             }
         }
 
+        notesAdapter!!.setOnClickListener(onClicked)
 
         binding.faBtnCreateNote.setOnClickListener {
             replaceFragment(CreateNoteFragment.newInstance(), true)
         }
+    }
+
+    private val onClicked = object : NotesAdapter.OnItemClickListener{
+        override fun onClicked(notesId: Int) {
+
+            var fragment : Fragment
+            var bundle = Bundle()
+            bundle.putInt("noteId" , notesId)
+            fragment = CreateNoteFragment.newInstance()
+            fragment.arguments = bundle
+
+            replaceFragment(fragment, true)
+        }
+
+
     }
 
     private fun replaceFragment(fragment: Fragment, istransition: Boolean){

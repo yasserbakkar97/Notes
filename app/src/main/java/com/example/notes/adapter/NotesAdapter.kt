@@ -11,9 +11,11 @@ import com.example.notes.R.layout.item_rv_notes
 import com.example.notes.entities.Notes
 import kotlinx.android.synthetic.main.item_rv_notes.view.*
 
-class NotesAdapter(val arrayList: List<Notes>) :
+class NotesAdapter() :
     RecyclerView.Adapter<NotesAdapter.NotesViewHolder>() {
 
+    var arrayList = ArrayList<Notes>()
+    var listener : OnItemClickListener? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotesViewHolder {
         return NotesViewHolder(
             LayoutInflater.from(parent.context).inflate(item_rv_notes, parent , false))
@@ -43,14 +45,29 @@ class NotesAdapter(val arrayList: List<Notes>) :
         }else{
             holder.itemView.tvWebLink.visibility = View.GONE
         }
+
+        holder.itemView.cardView.setOnClickListener {
+            listener!!.onClicked(arrayList[position].id!!)
+        }
     }
 
     override fun getItemCount(): Int {
         return arrayList.size
     }
 
+    fun setData(arrNotesList: List<Notes>){
+        arrayList = arrNotesList as ArrayList<Notes>
+    }
+    fun setOnClickListener(listener1: OnItemClickListener){
+        listener = listener1
+    }
+
     class NotesViewHolder(view: View) : RecyclerView.ViewHolder(view){
 
+    }
+
+    interface OnItemClickListener{
+        fun onClicked(noteId:Int)
     }
 
 }
