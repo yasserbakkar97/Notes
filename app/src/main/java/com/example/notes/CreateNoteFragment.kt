@@ -129,6 +129,9 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
             var noteBottomSheetFragment = NoteBottomSheetFragment.newInstance()
             noteBottomSheetFragment.show(requireActivity().supportFragmentManager,  "Note Bottom Sheet Fragment")
         }
+
+
+
         btnOk.setOnClickListener {
             if(etWebLink.text.toString().trim().isNotEmpty()){
                 checkWebUrl()
@@ -176,6 +179,7 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
                 etNoteTitle.setText("")
                 etNoteSubTitle.setText("")
                 etNoteDesc.setText("")
+                layoutImage.visibility = View.GONE
                 imgNote.visibility = View.GONE
                 tvWebLink.visibility = View.GONE
                 requireActivity().supportFragmentManager.popBackStack()
@@ -235,6 +239,7 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
                     layoutWebUrl.visibility = View.VISIBLE
                 }
                 else -> {
+                    layoutImage.visibility = View.GONE
                     imgNote.visibility = View.GONE
                     layoutWebUrl.visibility = View.GONE
                     selectedColor = p1.getStringExtra("selectedColor")!!
@@ -301,6 +306,7 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
                            var bitmap = BitmapFactory.decodeStream(inputStream)
                            imgNote.setImageBitmap(bitmap)
                            imgNote.visibility = View.VISIBLE
+                           layoutImage.visibility = View.VISIBLE
 
                            selectedImagePath = getPathFromUri(selectedImageURL)!!
                        }catch (e: Exception){
