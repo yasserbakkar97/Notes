@@ -103,7 +103,9 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
                         layoutWebUrl.visibility = View.VISIBLE
                         imgUrlDelete.visibility = View.VISIBLE
                         etWebLink.setText(notes.webLink)
+                        imgUrlDelete.visibility = View.VISIBLE
                     }else{
+                        imgUrlDelete.visibility = View.GONE
                         layoutWebUrl.visibility = View.GONE
                     }
                 }
@@ -164,6 +166,7 @@ class CreateNoteFragment : BaseFragment() , EasyPermissions.PermissionCallbacks 
 
         imgUrlDelete.setOnClickListener {
             webLink = ""
+            tvWebLink.visibility = View.GONE
             imgUrlDelete.visibility = View.GONE
             layoutWebUrl.visibility = View.GONE
         }
