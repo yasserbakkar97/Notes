@@ -7,20 +7,20 @@ import com.example.notes.entities.Notes
 interface NoteDao {
 
     @Query("SELECT * FROM notes ORDER BY id DESC")
-    suspend fun getAllNotes() :List<Notes>
+    suspend fun getAllNotes(): List<Notes>
 
     @Query("SELECT * FROM notes WHERE id =:id")
-    suspend fun getSpecificNote(id:Int) : Notes
+    suspend fun getSpecificNote(id: Int): Notes
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE )
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote(note: Notes)
 
     @Delete
-    suspend fun deleteNote(note:Notes)
+    suspend fun deleteNote(note: Notes)
 
     @Query("DELETE FROM notes WHERE id =:id")
-    suspend fun deleteSpecificNote(id:Int)
+    suspend fun deleteSpecificNote(id: Int)
 
     @Update
-    suspend fun updateNote(note:Notes)
+    suspend fun updateNote(note: Notes)
 }
